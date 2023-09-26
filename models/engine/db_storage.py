@@ -2,12 +2,15 @@
 """New engine DBStorage"""
 # to get enviromental variables
 from os import environ
+
 # to create the engine
 from sqlalchemy import create_engine
+
 # create_engine syntaxis: [dialect]+[driver]://[username]:[password]@[host]:[port]/[database]
 # to delete all tables if we are in a test enviroment
 # to create all tables based on engine
 from models.base_model import Base
+
 # retrieving all the classes
 # to create the current db session
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -24,6 +27,7 @@ from sqlalchemy.orm import session
 class DBStorage:
     """New class that represents an storage engine and has the
     following attributes"""
+
     __engine = None
     __session = None
 
@@ -33,15 +37,17 @@ class DBStorage:
         to the MySQL database and user created in previus tasks
         hbnb_dev and hbnb_dev_db"""
         # creating engine using the enviromental variables (retrieving values vía enviromental variables)
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(environ.get("HBNB_MYSQL_USER"),
-                                                                           environ.get(
-                                                                               "HBNB_MYSQL_PWD"),
-                                                                           environ.get(
-                                                                               "HBNB_MYSQL_HOST"),
-                                                                           environ.get("HBNB_MYSQL_DB")),
-                                      pool_pre_ping=True)
+        self.__engine = create_engine(
+            "mysql+mysqldb://{}:{}@{}/{}".format(
+                environ.get("HBNB_MYSQL_USER"),
+                environ.get("HBNB_MYSQL_PWD"),
+                environ.get("HBNB_MYSQL_HOST"),
+                environ.get("HBNB_MYSQL_DB"),
+            ),
+            pool_pre_ping=True,
+        )
         # avoiding te accidental elimination of data in a production or dev enviroment
-        if environ.get('HBNB_ENV') == 'test':
+        if environ.get("HBNB_ENV") == "test":
             Base.metadata.drop_all()
 
     def all(self, cls=None):
@@ -91,7 +97,7 @@ class DBStorage:
         self.__session.add(obj)
 
     def save(self):
-        """This method will save the changes to te objects in the current 
+        """This method will save the changes to te objects in the current
         session so this will persist the objects in the database"""
         self.__session.commit()
 
