@@ -1,15 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-import models
-from os import path
-from models.base_model import BaseModel
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.state import State
-from models.user import User
 
 
 class FileStorage:
@@ -19,35 +10,40 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
-        if not cls:
-            return FileStorage.__objects
+        """Returns a dictionary of models currently in
+        storage depending of cls"""
+        if cls is not None:
+            result = {}
+            for key, value in FileStorage.__objects.items():
+                if key[: key.index(".")] == cls.__name__:
+                    result[key] = value
+            return result
         else:
-            temp_dict = {}
-            for key, value in self.__objects.items():
-                if isinstance(value, cls):
-                    temp_dict[key] = value
-            return temp_dict
+            return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        key = obj.to_dict()["__class__"] + "." + obj.id
-        self.all().update({key: obj})
+        self.all().update({obj.to_dict()["__class__"] + "." + obj.id: obj})
 
     def save(self):
         """Saves storage dictionary to file"""
-
         with open(FileStorage.__file_path, "w") as f:
             temp = {}
             temp.update(FileStorage.__objects)
             for key, val in temp.items():
                 temp[key] = val.to_dict()
-            json.dump(temp, f, indent=2, sort_keys=True)
+            json.dump(temp, f)
 
     def reload(self):
         """Loads storage dictionary from file"""
-        file_path = self.__file_path
-        temp_dict = {}
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+
         classes = {
             "BaseModel": BaseModel,
             "User": User,
@@ -57,31 +53,26 @@ class FileStorage:
             "Amenity": Amenity,
             "Review": Review,
         }
-
-        if path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
-                temp_dict = json.load(f)
-
-                for key, value in temp_dict.items():
-                    extract_cls_name = value["__class__"]
-                    check_cls_in_var = classes[extract_cls_name]
-                    simple_instance = check_cls_in_var(**value)
-                    self.all()[key] = simple_instance
-                    # self.__objects[key] = simple_instance
+        try:
+            temp = {}
+            with open(FileStorage.__file_path, "r") as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    self.all()[key] = classes[val["__class__"]](**val)
+        except FileNotFoundError:
+            pass
 
     def delete(self, obj=None):
-        """This method deletes an object if it is passed
-        otherwise returns"""
-        if obj is None:
-            # print("** command requires an obj to delete **")
-            return
+        """Delete obj from __objects if  it's inside - if obj is equal to
+        None, the method should not do anything
+        """
+        if obj is not None:
+            for key in list(FileStorage.__objects.keys()):
+                if FileStorage.__objects[key] == obj:
+                    del FileStorage.__objects[key]
         else:
-            for key, value in self.__objects.items():
-                if value == obj:
-                    del self.__objects[key]
-                    break
+            pass
 
     def close(self):
-        """This method deserialices the json file to objects
-        by calling the reload() method"""
+        """call reload() method for deserializing the JSON file to objects"""
         self.reload()
