@@ -18,7 +18,7 @@ def task10a():
 @app.route("/states/<id>", strict_slashes=False)
 def task10b(id):
     return render_template("9-states.html",
-                           data1=storage.all(State), 
+                           data1=storage.all(State),
                            data2=storage.all(City),
                            data3=id)
 
