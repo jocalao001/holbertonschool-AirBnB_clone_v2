@@ -10,13 +10,15 @@ app = Flask(__name__)
 
 @app.route("/states", strict_slashes=False)
 def task10a():
-    return render_template("9-states.html", data1=storage.all(State), data3=None)
+    return render_template("9-states.html", data1=storage.all(State),
+                           data3=None)
 
 
 @app.route("/states/<id>", strict_slashes=False)
 def task10b(id):
     return render_template(
-        "9-states.html", data1=storage.all(State), data2=storage.all(City), data3=id
+        "9-states.html", data1=storage.all(State), 
+        data2=storage.all(City), data3=id
     )
 
 
