@@ -10,9 +10,9 @@ app = Flask(__name__)
 
 @app.route("/cities_by_states", strict_slashes=False)
 def task9():
-    return render_template("8-cities_by_states.html",
-                            data1=storage.all(State),
-                            data2=storage.all(City))
+    return render_template(
+        "8-cities_by_states.html", data1=storage.all(State), data2=storage.all(City)
+    )
 
 
 @app.teardown_appcontext
